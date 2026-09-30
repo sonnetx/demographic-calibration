@@ -1,0 +1,46 @@
+# R1-Onevision-7B Configuration for DDI Calibration Study
+# Local reasoning model (Qwen2-VL based)
+experiment_name: r1_ddi_calibration
+
+data:
+  metadata_path: /path/to/ddi/ddi_metadata.csv
+  images_dir: /path/to/ddi/
+  random_seed: 42
+  skin_tone_groups:
+    light:
+      - 12
+    medium:
+      - 34
+    dark:
+      - 56
+
+model:
+  name: r1-onevision-7b
+  max_tokens: 4096
+  timeout: 120.0  # Longer for local inference
+  rate_limit_rpm: 999  # No rate limit for local models
+
+confidence:
+  extract_logprob: true          # TLP: direct access to model logprobs
+  extract_verbalized: true       # CE: confidence elicitation
+  extract_self_consistency: true  # Label agreement across K samples
+  extract_embedding_consistency: false  # Expensive with local models
+  self_consistency_k: 15  # Must match GPT-4o for valid cross-model comparison
+  self_consistency_temperatures:
+    - 0.5
+    - 1.0
+  logprob_top_k: 5
+
+calibration:
+  n_bins: 10
+  bootstrap_n_samples: 1000
+  bootstrap_ci_level: 0.95
+  temperature_scaling_lr: 0.01
+  temperature_scaling_max_iter: 100
+
+output:
+  output_dir: outputs
+  save_raw_predictions: true
+  generate_figures: true
+  figure_format: png
+  figure_dpi: 300
